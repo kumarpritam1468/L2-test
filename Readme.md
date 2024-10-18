@@ -1,0 +1,1 @@
+I have made all the functionalities (including bonus ones) with html, css, js. Although I can make these faster and very easily with React and tailwind, but as per instructions I have made this with html, css, js
