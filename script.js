@@ -3,63 +3,63 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartItemsContainer = document.querySelector('.cartItems');
     const subtotalElement = document.querySelector('.cartTotal div div:first-child h2:last-child');
     const totalElement = document.querySelector('.cartTotal div div:nth-child(2) h2:last-child');
-    const loader = document.createElement('div');
-    loader.classList.add('loader');
-    document.body.appendChild(loader);
+    const loader = document.querySelector('.loader');
 
     showLoader();
 
-    fetch(apiURL)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const items = data.items;
-            let subtotal = 0;
-
-            items.forEach(item => {
-                subtotal += item.price * item.quantity;
-                const itemElement = document.createElement('div');
-                itemElement.classList.add('item');
-                itemElement.innerHTML = `
-                    <img src="${item.image}" alt="${item.title}">
-                    <h2>${item.title}</h2>
-                    <h2>₹${item.price / 100}</h2>
-                    <input type="number" name="qty" value="${item.quantity}" min="1">
-                    <h2>₹${(item.price * item.quantity) / 100}</h2>
-                    <i class='bx bx-trash' data-id="${item.id}"></i>
-                `;
-                cartItemsContainer.appendChild(itemElement);
-            });
-
-            subtotalElement.textContent = `₹${subtotal / 100}`;
-            totalElement.textContent = `₹${subtotal / 100}`;
-
-            saveCartToLocalStorage(items);
-            hideLoader();
-
-            document.querySelectorAll('.item input[name="qty"]').forEach(input => {
-                input.addEventListener('change', (e) => {
-                    const itemId = e.target.nextElementSibling.nextElementSibling.dataset.id;
-                    const newQuantity = parseInt(e.target.value);
-                    updateItemQuantity(itemId, newQuantity);
+    setTimeout(() => {
+        fetch(apiURL)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const items = data.items;
+                let subtotal = 0;
+    
+                items.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                    const itemElement = document.createElement('div');
+                    itemElement.classList.add('item');
+                    itemElement.innerHTML = `
+                        <img src="${item.image}" alt="${item.title}">
+                        <h2>${item.title}</h2>
+                        <h2>₹${item.price / 100}</h2>
+                        <input type="number" name="qty" value="${item.quantity}" min="1">
+                        <h2>₹${(item.price * item.quantity) / 100}</h2>
+                        <i class='bx bx-trash' data-id="${item.id}"></i>
+                    `;
+                    cartItemsContainer.appendChild(itemElement);
                 });
-            });
-
-            document.querySelectorAll('.item .bx-trash').forEach(trashIcon => {
-                trashIcon.addEventListener('click', (e) => {
-                    const itemId = e.target.dataset.id;
-                    confirmRemoveItem(itemId);
+    
+                subtotalElement.textContent = `₹${subtotal / 100}`;
+                totalElement.textContent = `₹${subtotal / 100}`;
+    
+                saveCartToLocalStorage(items);
+                hideLoader();
+    
+                document.querySelectorAll('.item input[name="qty"]').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const itemId = e.target.nextElementSibling.nextElementSibling.dataset.id;
+                        const newQuantity = parseInt(e.target.value);
+                        updateItemQuantity(itemId, newQuantity);
+                    });
                 });
+    
+                document.querySelectorAll('.item .bx-trash').forEach(trashIcon => {
+                    trashIcon.addEventListener('click', (e) => {
+                        const itemId = e.target.dataset.id;
+                        confirmRemoveItem(itemId);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching the cart data:', error);
+                hideLoader();
             });
-        })
-        .catch(error => {
-            console.error('Error fetching the cart data:', error);
-            hideLoader();
-        });
+    }, 5000);
 
     function updateItemQuantity(itemId, newQuantity) {
         const item = document.querySelector(`.item .bx-trash[data-id="${itemId}"]`).parentElement;
@@ -143,9 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showLoader() {
         loader.style.display = 'block';
-        setTimeout(() => {
-            hideLoader();
-        }, 2000);
     }
 
     function hideLoader() {
